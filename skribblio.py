@@ -4,6 +4,8 @@ A python script to draw in the game skribblio
 Author: David Chen
 """
 import pyautogui
+import numpy as np
+from PIL import Image
 from time import sleep
 from pathlib import Path
 
@@ -15,7 +17,7 @@ CANVAS_BOTTOM_RIGHT = (
 
 
 # other
-ICON_PATH = Path('./assets')
+ASSETS_PATH = Path('./assets')
 
 pyautogui.PAUSE = 0.0
 
@@ -30,14 +32,47 @@ def alt_tab():
     pyautogui.keyUp('alt')
 
 
-alt_tab()
+def select_brush(size):
+    """ Select the brush using the icon screenshot 
+    Sizes: small, mid, large, xlarge
+    """
+    brush_path = ASSETS_PATH / f'{size}_brush.png'
+    x, y = pyautogui.locateCenterOnScreen(str(brush_path.absolute()))
+    pyautogui.click(x, y)
 
 
-sleep(1)
-brush_path = ICON_PATH / 'mid_brush.png'
-x, y = pyautogui.locateCenterOnScreen(str(brush_path.absolute()))
-pyautogui.click(x, y)
+def img_resize(img):
+    """ resize image to fit screen """
+    pass
 
-for y in range(CANVAS_TOP_LEFT[1], CANVAS_BOTTOM_RIGHT[1], 8):
-    for x in range(CANVAS_TOP_LEFT[0], CANVAS_BOTTOM_RIGHT[0], 8):
-        pyautogui.click(x, y)
+
+def draw_img(img):
+    """ Draw provided image on canvas """
+    arr = np.array(img)
+    arr = np.transpose(arr, (1, 0, 2))  # permute back to (width, height)
+    WHITE = np.array([255, 255, 255])
+    draw_arr = np.zeros(img.size)
+    for x in range(arr.shape[0]):
+        for y in range(arr.shape[1]):
+            if not np.array_equal(arr[x, y], WHITE):
+                draw_arr[x][y] = 1
+    return draw_arr
+
+
+if __name__ == '__main__':
+    # alt_tab()
+
+    # for y in range(CANVAS_TOP_LEFT[1], CANVAS_BOTTOM_RIGHT[1], 8):
+    #     for x in range(CANVAS_TOP_LEFT[0], CANVAS_BOTTOM_RIGHT[0], 8):
+    #         pyautogui.click(x, y)
+    #         break
+    img = Image.open(ASSETS_PATH / 'turtle.jpeg')
+    arr = np.array(img)
+    arr = np.transpose(arr, (1, 0, 2))
+    WHITE = np.array([255, 255, 255])
+    draw_arr = np.zeros(img.size)
+    for x in range(arr.shape[0]):
+        for y in range(arr.shape[1]):
+            if not np.array_equal(arr[x, y], WHITE):
+                draw_arr[x][y] = 1
+    print(draw_arr)
