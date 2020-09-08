@@ -60,19 +60,20 @@ def draw_img(img):
 
 
 if __name__ == '__main__':
-    # alt_tab()
+    alt_tab()
+    sleep(1)
+    select_brush('mid')
 
-    # for y in range(CANVAS_TOP_LEFT[1], CANVAS_BOTTOM_RIGHT[1], 8):
-    #     for x in range(CANVAS_TOP_LEFT[0], CANVAS_BOTTOM_RIGHT[0], 8):
-    #         pyautogui.click(x, y)
-    #         break
     img = Image.open(ASSETS_PATH / 'turtle.jpeg')
-    arr = np.array(img)
-    arr = np.transpose(arr, (1, 0, 2))
-    WHITE = np.array([255, 255, 255])
-    draw_arr = np.zeros(img.size)
-    for x in range(arr.shape[0]):
-        for y in range(arr.shape[1]):
-            if not np.array_equal(arr[x, y], WHITE):
-                draw_arr[x][y] = 1
-    print(draw_arr)
+    draw_arr = draw_img(img)
+    img_w, img_h = img.size
+
+    dist = 4
+
+    for i in range(img_w):
+        for j in range(img_h):
+            if draw_arr[i, j]:
+                x = CANVAS_TOP_LEFT[0] + 4 * i
+                y = CANVAS_TOP_LEFT[1] + 4 * j
+                pyautogui.click(x, y)
+                # print(x, y)
