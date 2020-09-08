@@ -62,18 +62,19 @@ def draw_img(img):
 if __name__ == '__main__':
     alt_tab()
     sleep(1)
-    select_brush('small')
+    select_brush('mid')
 
-    img = Image.open(ASSETS_PATH / 'turtle.jpeg')
+    # # img = Image.open(ASSETS_PATH / 'turtle.jpeg')
+    img = Image.open(ASSETS_PATH / 'pig.png').convert('RGB')
     draw_arr = draw_img(img)
     img_w, img_h = img.size
 
-    dist = 4
+    dist = 3
 
     for i in range(img_w):
         for j in range(img_h):
             if draw_arr[i, j]:
-                x = CANVAS_TOP_LEFT[0] + 4 * i
-                y = CANVAS_TOP_LEFT[1] + 4 * j
+                x = CANVAS_TOP_LEFT[0] + dist * i
+                y = CANVAS_TOP_LEFT[1] + dist * j
                 pyautogui.click(x, y)
                 # print(x, y)
