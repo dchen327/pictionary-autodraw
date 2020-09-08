@@ -62,7 +62,7 @@ def draw_img(img):
 if __name__ == '__main__':
     alt_tab()
     sleep(1)
-    select_brush('mid')
+    select_brush('small')
 
     img = Image.open(ASSETS_PATH / 'turtle.jpeg')
     draw_arr = draw_img(img)
