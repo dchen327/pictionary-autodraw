@@ -19,7 +19,7 @@ CANVAS_BOTTOM_RIGHT = (
 # other
 ASSETS_PATH = Path('./assets')
 
-pyautogui.PAUSE = 0.1
+pyautogui.PAUSE = 0.0
 
 
 def alt_tab():
@@ -43,6 +43,7 @@ def select_brush(size):
 
 def brush_size(size):
     pyautogui.scroll(-10)
+    sleep(0.2)
     pyautogui.scroll(size)
 
 
@@ -90,10 +91,11 @@ def rgb_dist(color1, color2):
 #                 # print(x, y)
 
 
-img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
+# img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
+img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
 img_w, img_h = img.size
 img_arr = np.array(img)
-img_2d = np.zeros(img_arr.shape[:-1])
+img_2d = [[0] * img_h for _ in range(img_w)]
 for i in range(img_w):
     for j in range(img_h):
         color = img_arr[i, j]
@@ -102,9 +104,46 @@ for i in range(img_w):
         if np.array_equal(color, BLACK):  # transparent
             continue
         if rgb_dist(color, BLACK) <= rgb_dist(color, WHITE):
-            img_2d[i, j] = 1
+            img_2d[i][j] = 1
 
-for i in range(img_w):
-    for j in range(img_h):
-        print(int(img_2d[i, j]), end=' ')
-    print()
+# for i in range(img_w):
+#     for j in range(img_h):
+#         print(int(img_2d[i][j]), end=' ')
+#     print()
+
+commands = []
+
+for i, row in enumerate(img_2d):
+    curr_color, start_idx = row[0], 0
+    # add on -1 at the end to grab all sequences
+    for idx, color in enumerate(row + [-1]):
+        if color != curr_color:
+            # color, start_pos, end_pos
+            if curr_color != 0:
+                commands.append((curr_color, (i, start_idx), (i, idx)))
+            curr_color, start_idx = color, idx  # update colors and start idx
+
+
+def draw_commands(commands, scale):
+    """ draw commands of the given format:
+    color, start_pos, end_pos
+    """
+    for command in commands:
+        color, start_pos, end_pos = command
+        x0, y0 = arr_coords_to_canvas(*start_pos, scale=scale)
+        x1, y1 = arr_coords_to_canvas(*end_pos, scale=scale)
+        pyautogui.moveTo(x0, y0)
+        pyautogui.dragTo(x1, y1)
+
+
+def arr_coords_to_canvas(i, j, scale):
+    """ Converts (x, y) array position to canvas """
+    x = CANVAS_TOP_LEFT[0] + scale * j
+    y = CANVAS_TOP_LEFT[1] + scale * i
+    return (x, y)
+
+
+alt_tab()
+sleep(2)
+brush_size(1)
+draw_commands(commands, scale=3)
