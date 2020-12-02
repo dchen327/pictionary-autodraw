@@ -19,7 +19,7 @@ CANVAS_BOTTOM_RIGHT = (
 # other
 ASSETS_PATH = Path('./assets')
 
-pyautogui.PAUSE = 0.0
+pyautogui.PAUSE = 0.1
 
 
 def alt_tab():
@@ -39,6 +39,11 @@ def select_brush(size):
     brush_path = ASSETS_PATH / f'{size}_brush.png'
     x, y = pyautogui.locateCenterOnScreen(str(brush_path.absolute()))
     pyautogui.click(x, y)
+
+
+def brush_size(size):
+    pyautogui.scroll(-10)
+    pyautogui.scroll(size)
 
 
 def img_resize(img):
@@ -62,7 +67,8 @@ def draw_img(img):
 if __name__ == '__main__':
     alt_tab()
     sleep(1)
-    select_brush('mid')
+    # select_brush('mid')
+    brush_size(0)
 
     # # img = Image.open(ASSETS_PATH / 'turtle.jpeg')
     img = Image.open(ASSETS_PATH / 'pig.png').convert('RGB')
