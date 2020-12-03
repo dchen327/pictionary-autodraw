@@ -9,15 +9,27 @@ from PIL import Image
 from time import sleep
 from pathlib import Path
 
-# drawing canvas params
-CANVAS_TOP_LEFT = (370, 195)
-CANVAS_WIDTH, CANVAS_HEIGHT = 1000, 750
-CANVAS_BOTTOM_RIGHT = (
-    CANVAS_TOP_LEFT[0] + CANVAS_WIDTH, CANVAS_TOP_LEFT[1] + CANVAS_HEIGHT)
-# color palette params
-PALETTE_TOP_LEFT = (480, 980)
-PALETTE_WIDTH, PALETTE_HEIGHT = 328, 57
-SINGLE_COLOR_SIZE = PALETTE_WIDTH / 11  # size of one color tile
+GAME = 'sketchful'  # sketchful or skribbl
+if GAME == 'skribbl':
+    # drawing canvas params
+    CANVAS_TOP_LEFT = (370, 195)
+    CANVAS_WIDTH, CANVAS_HEIGHT = 1000, 750
+    CANVAS_BOTTOM_RIGHT = (
+        CANVAS_TOP_LEFT[0] + CANVAS_WIDTH, CANVAS_TOP_LEFT[1] + CANVAS_HEIGHT)
+    # color palette params
+    PALETTE_TOP_LEFT = (480, 980)
+    PALLETE_DIMS = (2, 11)  # 2 rows, 11 columns of colors
+    SINGLE_COLOR_SIZE = 29  # size of one color tile
+if GAME == 'sketchful':
+    # drawing canvas params
+    CANVAS_TOP_LEFT = (330, 270)
+    CANVAS_WIDTH, CANVAS_HEIGHT = 1000, 750
+    CANVAS_BOTTOM_RIGHT = (
+        CANVAS_TOP_LEFT[0] + CANVAS_WIDTH, CANVAS_TOP_LEFT[1] + CANVAS_HEIGHT)
+    # color palette params
+    PALETTE_TOP_LEFT = (1372, 403)
+    PALLETE_DIMS = (3, 13)
+    SINGLE_COLOR_SIZE = 24  # size of one color tile
 
 
 # other
@@ -108,17 +120,20 @@ def arr_coords_to_canvas(i, j, scale):
 def get_hex_array():
     pallete_rgb = []  # store rgb values of colors
     pallete_coords = []  # store coordinates of where to click on screen
-    palette_img = Image.open(ASSETS_PATH / 'color_palette.png').convert('RGB')
+    palette_img = Image.open(
+        ASSETS_PATH / 'sketchful_palette.png').convert('RGB')
     curr_row = 0
-    for color_idx in range(22):  # 22 colors total
-        if color_idx == 11:  # start second row
+    for color_idx in range(PALLETE_DIMS[0] * PALLETE_DIMS[1]):
+        # start next row
+        if color_idx > 0 and color_idx % PALLETE_DIMS[1] == 0:
             curr_row += 1
-        curr_col = color_idx % 11
+        curr_col = color_idx % PALLETE_DIMS[1]
         x = int(curr_col * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
         y = int(curr_row * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
         pallete_coords.append((x, y))
         rgb = palette_img.getpixel((x, y))
         pallete_rgb.append(rgb)
+        # print('#{0:02x}{1:02x}{2:02x}'.format(*rgb))
     return pallete_rgb, pallete_coords
 
 
@@ -171,7 +186,7 @@ for i, row in enumerate(img_2d):
             curr_color, start_idx = color, idx  # update colors and start idx
 
 print_color_grid(img_2d)
-alt_tab()
-sleep(2)
-brush_size(10)
-draw_commands(commands, scale=10)
+# alt_tab()
+# sleep(2)
+# brush_size(10)
+# draw_commands(commands, scale=10)
