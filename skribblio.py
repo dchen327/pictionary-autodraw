@@ -9,11 +9,14 @@ from PIL import Image
 from time import sleep
 from pathlib import Path
 
-# canvas params
+# drawing canvas params
 CANVAS_TOP_LEFT = (370, 195)
 CANVAS_WIDTH, CANVAS_HEIGHT = 1000, 750
 CANVAS_BOTTOM_RIGHT = (
     CANVAS_TOP_LEFT[0] + CANVAS_WIDTH, CANVAS_TOP_LEFT[1] + CANVAS_HEIGHT)
+# color palette params
+PALETTE_TOP_LEFT = (480, 980)
+PALETTE_WIDTH, PALETTE_HEIGHT = 328, 57
 
 
 # other
@@ -69,43 +72,6 @@ def rgb_dist(color1, color2):
     """ Returns squared euclidean distance between two numpy RGB triples """
     return np.sum((color1 - color2) ** 2)
 
-# if __name__ == '__main__':
-#     alt_tab()
-#     sleep(1)
-#     # select_brush('mid')
-#     brush_size(0)
-
-#     # # img = Image.open(ASSETS_PATH / 'turtle.jpeg')
-#     img = Image.open(ASSETS_PATH / 'pig.png').convert('RGB')
-#     draw_arr = draw_img(img)
-#     img_w, img_h = img.size
-
-#     dist = 3
-
-#     for i in range(img_w):
-#         for j in range(img_h):
-#             if draw_arr[i, j]:
-#                 x = CANVAS_TOP_LEFT[0] + dist * i
-#                 y = CANVAS_TOP_LEFT[1] + dist * j
-#                 pyautogui.click(x, y)
-#                 # print(x, y)
-
-
-img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
-# img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
-img_w, img_h = img.size
-img_arr = np.array(img)
-img_2d = [[0] * img_h for _ in range(img_w)]
-for i in range(img_w):
-    for j in range(img_h):
-        color = img_arr[i, j]
-        BLACK = np.array([0, 0, 0])
-        WHITE = np.array([255, 255, 255])
-        if np.array_equal(color, BLACK):  # transparent
-            continue
-        if rgb_dist(color, BLACK) <= rgb_dist(color, WHITE):
-            img_2d[i][j] = 1
-
 
 def print_color_grid():
     """ Print color ids in grid """
@@ -134,6 +100,21 @@ def arr_coords_to_canvas(i, j, scale):
     return (x, y)
 
 
+img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
+# img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
+img_w, img_h = img.size
+img_arr = np.array(img)
+img_2d = [[0] * img_h for _ in range(img_w)]
+for i in range(img_w):
+    for j in range(img_h):
+        color = img_arr[i, j]
+        BLACK = np.array([0, 0, 0])
+        WHITE = np.array([255, 255, 255])
+        if np.array_equal(color, BLACK):  # transparent
+            continue
+        if rgb_dist(color, BLACK) <= rgb_dist(color, WHITE):
+            img_2d[i][j] = 1
+
 commands = []
 
 for i, row in enumerate(img_2d):
@@ -146,8 +127,10 @@ for i, row in enumerate(img_2d):
                 commands.append((curr_color, (i, start_idx), (i, idx)))
             curr_color, start_idx = color, idx  # update colors and start idx
 
-
+# print_color_grid()
 # alt_tab()
 # sleep(2)
 # brush_size(1)
 # draw_commands(commands, scale=3)
+im = pyautogui.screenshot(region=(480, 980, 328, 57))
+im.save(ASSETS_PATH / 'color_palette.png')
