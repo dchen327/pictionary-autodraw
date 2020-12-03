@@ -3,6 +3,7 @@ A python script to draw in the game skribblio
 
 Author: David Chen
 """
+from numpy.core.arrayprint import LongComplexFormat
 import pyautogui
 import numpy as np
 import random
@@ -33,7 +34,7 @@ elif GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
-    RESIZE = (64, 64)  # max image size after resize
+    RESIZE = (84, 64)  # max image size after resize
     IMG_SCALE = 12
 
 
@@ -63,8 +64,9 @@ def select_brush(size):
 
 
 def brush_size(size):
-    pyautogui.scroll(-10)
     sleep(0.3)
+    pyautogui.scroll(-12)
+    sleep(0.5)
     pyautogui.scroll(size)
     sleep(0.3)
 
@@ -172,6 +174,12 @@ def draw_commands(commands):
     """
     # random.shuffle(commands)
     commands.sort(key=lambda x: x[-1], reverse=True)  # sort by dist decreasing
+    longer_commands = commands[:len(commands) // 10]  # first 10% of commands
+    shorter_commands = commands[len(commands) // 10:]  # other 90%
+    # shuffle longer and shorter parts, then concatenate
+    random.shuffle(longer_commands)
+    # random.shuffle(shorter_commands)
+    commands = longer_commands + shorter_commands
     for command in commands:
         color, start_pos, end_pos, dist = command
         if color == 0:  # skip white
@@ -179,14 +187,12 @@ def draw_commands(commands):
         x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
-        if dist == 1:
+        if dist <= 1:
             pyautogui.click(x0, y0)
         else:
             pyautogui.moveTo(x0, y0)
             if dist == 2:
                 pyautogui.dragTo(x1, y1)
-            elif dist == 3:
-                pyautogui.dragTo(x1, y1, duration=0.05)
             else:
                 pyautogui.dragTo(x1, y1, duration=0.12)
 
@@ -205,7 +211,7 @@ def create_commands(img_2d):
                 # color, start_pos, end_pos, dist
                 if curr_color != 0:
                     commands_horiz.append(
-                        (curr_color, (i, start_idx), (i, idx), (idx - start_idx)))
+                        (curr_color, (i, start_idx), (i, idx - 1), (idx - start_idx)))
                 curr_color, start_idx = color, idx  # update colors and start idx
 
     # loop through columns
@@ -228,7 +234,7 @@ def create_commands(img_2d):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'impossible_cube.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGBA')
 img_resize(img, RESIZE)
 img = add_white_bg(img)
 img_w, img_h = img.size
@@ -242,7 +248,7 @@ for i in range(img_h):
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
-brush_size(2)
+brush_size(4)
 commands = create_commands(img_2d)
 
 start_time = time()
