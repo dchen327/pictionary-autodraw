@@ -3,6 +3,7 @@ A python script to draw in the game skribblio
 
 Author: David Chen
 """
+from numpy.lib.function_base import place
 import pyautogui
 import numpy as np
 from PIL import Image
@@ -20,7 +21,8 @@ if GAME == 'skribbl':
     PALETTE_TOP_LEFT = (480, 980)
     PALLETE_DIMS = (2, 11)  # 2 rows, 11 columns of colors
     SINGLE_COLOR_SIZE = 29  # size of one color tile
-if GAME == 'sketchful':
+    IMG_SCALE = 10
+elif GAME == 'sketchful':
     # drawing canvas params
     CANVAS_TOP_LEFT = (330, 270)
     CANVAS_WIDTH, CANVAS_HEIGHT = 1000, 750
@@ -30,12 +32,13 @@ if GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
+    IMG_SCALE = 10
 
 
 # other
 ASSETS_PATH = Path('./assets')
 
-pyautogui.PAUSE = 0.05
+pyautogui.PAUSE = 0
 
 
 def alt_tab():
@@ -61,6 +64,7 @@ def brush_size(size):
     pyautogui.scroll(-10)
     sleep(0.2)
     pyautogui.scroll(size)
+    sleep(0.2)
 
 
 def img_resize(img):
@@ -89,7 +93,7 @@ def rgb_dist(color1, color2):
 
 def print_color_grid(img_2d):
     """ Print color ids in grid """
-    alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,./'
     for i in range(len(img_2d)):
         for j in range(len(img_2d[0])):
             idx = int(img_2d[i][j])
@@ -103,8 +107,10 @@ def draw_commands(commands, scale):
     """
     for command in commands:
         color, start_pos, end_pos = command
-        x0, y0 = arr_coords_to_canvas(*start_pos, scale=scale)
-        x1, y1 = arr_coords_to_canvas(*end_pos, scale=scale)
+        # if color == 0:  # skip white
+        #     continue
+        x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
+        x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
         pyautogui.dragTo(x1, y1)
@@ -128,17 +134,19 @@ def get_hex_array():
         if color_idx > 0 and color_idx % PALLETE_DIMS[1] == 0:
             curr_row += 1
         curr_col = color_idx % PALLETE_DIMS[1]
-        x = int(curr_col * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
-        y = int(curr_row * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
-        pallete_coords.append((x, y))
-        rgb = palette_img.getpixel((x, y))
+        i = int(curr_col * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
+        j = int(curr_row * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
+        rgb = palette_img.getpixel((i, j))
         pallete_rgb.append(rgb)
+        x = PALETTE_TOP_LEFT[0] + i
+        y = PALETTE_TOP_LEFT[1] + j
+        pallete_coords.append((x, y))
         # print('#{0:02x}{1:02x}{2:02x}'.format(*rgb))
     return pallete_rgb, pallete_coords
 
 
 def get_closest_color(color, pallete_rgb):
-    """ Given an RGB tuple, return the index in the len 22 array of the
+    """ Given an RGB tuple, return the index in the color array of the
         closest color """
     min_dist = float('inf')
     closest_idx = -1
@@ -153,13 +161,14 @@ def get_closest_color(color, pallete_rgb):
 
 def pick_color(color, pallete_coords):
     """ Click and pick color in palette """
-    pyautogui.click(*pallete_coords[color])
+    x, y = pallete_coords[color]
+    pyautogui.click(x, y)
     sleep(0.1)
 
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'weather_icon.32.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
 # img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGBA')
 # we paste the image on a white background to ensure transparency is white and not black
 white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
@@ -185,8 +194,10 @@ for i, row in enumerate(img_2d):
                 commands.append((curr_color, (i, start_idx), (i, idx)))
             curr_color, start_idx = color, idx  # update colors and start idx
 
-print_color_grid(img_2d)
-# alt_tab()
-# sleep(2)
-# brush_size(10)
-# draw_commands(commands, scale=10)
+# print_color_grid(img_2d)
+alt_tab()
+sleep(1)
+brush_size(2)
+draw_commands(commands, scale=10)
+# print(pallete_coords)
+# pick_color(8, pallete_coords)
