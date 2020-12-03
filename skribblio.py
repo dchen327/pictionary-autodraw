@@ -88,7 +88,8 @@ def draw_img(img):
 def rgb_dist(color1, color2):
     """ Returns squared euclidean distance between two numpy RGB triples """
     # return np.sum((color1 - color2) ** 2)
-    return sum((color1[i] - color2[i]) ** 2 for i in range(3))
+    # return sum((color1[i] - color2[i]) ** 2 for i in range(3))
+    return sum(abs(color1[i] - color2[i]) for i in range(3))
 
 
 def print_color_grid(img_2d):
@@ -101,7 +102,7 @@ def print_color_grid(img_2d):
         print()
 
 
-def draw_commands(commands, scale):
+def draw_commands(commands):
     """ draw commands of the given format:
         color, start_pos, end_pos
     """
@@ -113,6 +114,7 @@ def draw_commands(commands, scale):
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
+        # pyautogui.dragTo(x1, y1, duration=0.15)
         pyautogui.dragTo(x1, y1)
 
 
@@ -198,6 +200,6 @@ for i, row in enumerate(img_2d):
 alt_tab()
 sleep(1)
 brush_size(2)
-draw_commands(commands, scale=10)
+draw_commands(commands)
 # print(pallete_coords)
 # pick_color(8, pallete_coords)
