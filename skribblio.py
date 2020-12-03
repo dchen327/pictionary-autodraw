@@ -23,7 +23,7 @@ SINGLE_COLOR_SIZE = PALETTE_WIDTH / 11  # size of one color tile
 # other
 ASSETS_PATH = Path('./assets')
 
-pyautogui.PAUSE = 0.1
+pyautogui.PAUSE = 0.05
 
 
 def alt_tab():
@@ -144,8 +144,12 @@ def pick_color(color, pallete_coords):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'weather_icon.resized2.jpg').convert('RGB')
-# # img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
+img = Image.open(ASSETS_PATH / 'weather_icon.32.png').convert('RGBA')
+# img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGBA')
+# we paste the image on a white background to ensure transparency is white and not black
+white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
+white_bg.paste(img, (0, 0), img)
+img = white_bg.convert('RGB')
 img_w, img_h = img.size
 img_arr = np.array(img)
 img_2d = [[0] * img_h for _ in range(img_w)]
@@ -166,8 +170,8 @@ for i, row in enumerate(img_2d):
                 commands.append((curr_color, (i, start_idx), (i, idx)))
             curr_color, start_idx = color, idx  # update colors and start idx
 
-# print_color_grid()
+print_color_grid(img_2d)
 alt_tab()
 sleep(2)
-brush_size(2)
+brush_size(10)
 draw_commands(commands, scale=10)
