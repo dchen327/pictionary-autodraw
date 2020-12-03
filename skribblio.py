@@ -3,9 +3,9 @@ A python script to draw in the game skribblio
 
 Author: David Chen
 """
-from numpy.lib.function_base import place
 import pyautogui
 import numpy as np
+import random
 from PIL import Image
 from time import sleep, time
 from pathlib import Path
@@ -32,7 +32,7 @@ elif GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
-    IMG_SCALE = 8
+    IMG_SCALE = 12
 
 
 # other
@@ -168,7 +168,8 @@ def draw_commands(commands):
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
-        if coord_manhattan_dist(x0, y0, x1, y1) < 20:
+        drag_dist = coord_manhattan_dist(x0, y0, x1, y1)
+        if drag_dist <= 20:
             pyautogui.dragTo(x1, y1)
         else:
             pyautogui.dragTo(x1, y1, duration=0.12)
@@ -177,7 +178,7 @@ def draw_commands(commands):
 pallete_rgb, pallete_coords = get_hex_array()
 
 # img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
-img = Image.open(ASSETS_PATH / 'impossible_cube.resized.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'soccerball.64.png').convert('RGBA')
 # we paste the image on a white background to ensure transparency is white and not black
 white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
 white_bg.paste(img, (0, 0), img)
@@ -205,7 +206,7 @@ for i, row in enumerate(img_2d):
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
-brush_size(1)
+brush_size(3)
 start_time = time()
 draw_commands(commands)
 print('{0:.2f}'.format(time() - start_time))
