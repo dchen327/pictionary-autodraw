@@ -162,7 +162,7 @@ def draw_commands(commands):
     """ draw commands of the given format:
         color, start_pos, end_pos
     """
-    # random.shuffle(commands)
+    random.shuffle(commands)
     for command in commands:
         color, start_pos, end_pos = command
         if color == 0:  # skip white
@@ -213,14 +213,19 @@ def create_commands(img_2d):
     return commands_vert
 
 
+def add_white_bg(img):
+    """ Add white background to image to ensure
+        transparency is white and not black """
+    white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
+    white_bg.paste(img, (0, 0), img)
+    return white_bg.convert('RGB')
+
+
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'impossible_cube.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'cookie_monster.jpg').convert('RGBA')
 img_resize(img, RESIZE)
-# we paste the image on a white background to ensure transparency is white and not black
-white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
-white_bg.paste(img, (0, 0), img)
-img = white_bg.convert('RGB')
+img = add_white_bg(img)
 img_w, img_h = img.size
 img_arr = np.array(img)
 img_2d = [[0] * img_w for _ in range(img_h)]
