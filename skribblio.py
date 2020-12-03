@@ -17,6 +17,7 @@ CANVAS_BOTTOM_RIGHT = (
 # color palette params
 PALETTE_TOP_LEFT = (480, 980)
 PALETTE_WIDTH, PALETTE_HEIGHT = 328, 57
+SINGLE_COLOR_SIZE = PALETTE_WIDTH / 11  # size of one color tile
 
 
 # other
@@ -132,5 +133,43 @@ for i, row in enumerate(img_2d):
 # sleep(2)
 # brush_size(1)
 # draw_commands(commands, scale=3)
-im = pyautogui.screenshot(region=(480, 980, 328, 57))
-im.save(ASSETS_PATH / 'color_palette.png')
+
+color_rows, color_cols = 2, 11
+
+
+def get_hex_array():
+    palette_img = Image.open(ASSETS_PATH / 'color_palette.png').convert('RGB')
+    curr_row = 0
+    for color_idx in range(22):  # 22 colors total
+        if color_idx == 11:  # start second row
+            curr_row += 1
+        curr_col = color_idx % 11
+        x = int(curr_col * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
+        y = int(curr_row * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
+        rgb = palette_img.getpixel((x, y))
+        print('#', color_idx, '#%02x%02x%02x' % rgb)
+
+
+get_hex_array()
+# 0 #ffffff
+# 1 #c0c0c0
+# 2 #fb1d26
+# 3 #ff712c
+# 4 #ffe440
+# 5 #00cb31
+# 6 #00b0fb
+# 7 #1e1ecc
+# 8 #a900b4
+# 9 #d97ba7
+# 10 #a55336
+# 11 #000000
+# 12 #4d4d4d
+# 13 #791416
+# 14 #ca3c1e
+# 15 #efa131
+# 16 #00561e
+# 17 #005699
+# 18 #120e62
+# 19 #590066
+# 20 #ac5673
+# 21 #67341a
