@@ -32,7 +32,7 @@ elif GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
-    IMG_SCALE = 10
+    IMG_SCALE = 13
 
 
 # other
@@ -108,14 +108,14 @@ def draw_commands(commands):
     """
     for command in commands:
         color, start_pos, end_pos = command
-        # if color == 0:  # skip white
-        #     continue
+        if color == 0:  # skip white
+            continue
         x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
-        # pyautogui.dragTo(x1, y1, duration=0.15)
-        pyautogui.dragTo(x1, y1)
+        pyautogui.dragTo(x1, y1, duration=0.12)
+        pyautogui.dragTo(x0, y0, duration=0.12)
 
 
 def arr_coords_to_canvas(i, j, scale):
@@ -170,17 +170,17 @@ def pick_color(color, pallete_coords):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
-# img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGBA')
+# img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'soccerball.64.png').convert('RGBA')
 # we paste the image on a white background to ensure transparency is white and not black
 white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
 white_bg.paste(img, (0, 0), img)
 img = white_bg.convert('RGB')
 img_w, img_h = img.size
 img_arr = np.array(img)
-img_2d = [[0] * img_h for _ in range(img_w)]
-for i in range(img_w):
-    for j in range(img_h):
+img_2d = [[0] * img_w for _ in range(img_h)]
+for i in range(img_h):
+    for j in range(img_w):
         color = tuple(img_arr[i, j])
         img_2d[i][j] = get_closest_color(color, pallete_rgb)
 
@@ -198,8 +198,8 @@ for i, row in enumerate(img_2d):
 
 # print_color_grid(img_2d)
 alt_tab()
-sleep(1)
-brush_size(2)
+sleep(0.5)
+brush_size(5)
 draw_commands(commands)
 # print(pallete_coords)
 # pick_color(8, pallete_coords)
