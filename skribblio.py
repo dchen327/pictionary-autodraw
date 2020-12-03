@@ -183,8 +183,10 @@ def draw_commands(commands):
             pyautogui.click(x0, y0)
         else:
             pyautogui.moveTo(x0, y0)
-            if dist <= 3:
+            if dist == 2:
                 pyautogui.dragTo(x1, y1)
+            elif dist == 3:
+                pyautogui.dragTo(x1, y1, duration=0.05)
             else:
                 pyautogui.dragTo(x1, y1, duration=0.12)
 
@@ -226,7 +228,7 @@ def create_commands(img_2d):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'cookie_monster.jpg').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'impossible_cube.png').convert('RGBA')
 img_resize(img, RESIZE)
 img = add_white_bg(img)
 img_w, img_h = img.size
