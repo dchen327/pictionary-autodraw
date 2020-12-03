@@ -75,11 +75,13 @@ def rgb_dist(color1, color2):
     return sum((color1[i] - color2[i]) ** 2 for i in range(3))
 
 
-def print_color_grid():
+def print_color_grid(img_2d):
     """ Print color ids in grid """
-    for i in range(img_w):
-        for j in range(img_h):
-            print(int(img_2d[i][j]), end=' ')
+    alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    for i in range(len(img_2d)):
+        for j in range(len(img_2d[0])):
+            idx = int(img_2d[i][j])
+            print(alpha[idx], end=' ')
         print()
 
 
@@ -100,42 +102,6 @@ def arr_coords_to_canvas(i, j, scale):
     x = CANVAS_TOP_LEFT[0] + scale * j
     y = CANVAS_TOP_LEFT[1] + scale * i
     return (x, y)
-
-
-# img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
-# # img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
-# img_w, img_h = img.size
-# img_arr = np.array(img)
-# img_2d = [[0] * img_h for _ in range(img_w)]
-# for i in range(img_w):
-#     for j in range(img_h):
-#         color = img_arr[i, j]
-#         BLACK = np.array([0, 0, 0])
-#         WHITE = np.array([255, 255, 255])
-#         if np.array_equal(color, BLACK):  # transparent
-#             continue
-#         if rgb_dist(color, BLACK) <= rgb_dist(color, WHITE):
-#             img_2d[i][j] = 1
-
-# commands = []
-
-# for i, row in enumerate(img_2d):
-#     curr_color, start_idx = row[0], 0
-#     # add on -1 at the end to grab all sequences
-#     for idx, color in enumerate(row + [-1]):
-#         if color != curr_color:
-#             # color, start_pos, end_pos
-#             if curr_color != 0:
-#                 commands.append((curr_color, (i, start_idx), (i, idx)))
-#             curr_color, start_idx = color, idx  # update colors and start idx
-
-# print_color_grid()
-# alt_tab()
-# sleep(2)
-# brush_size(1)
-# draw_commands(commands, scale=3)
-
-color_rows, color_cols = 2, 11
 
 
 def get_hex_array():
@@ -170,5 +136,33 @@ def get_closest_color(color, pallete_rgb):
 
 
 pallete_rgb, pallete_coords = get_hex_array()
-color = (31, 100, 100)
-print(get_closest_color(color, pallete_rgb))
+
+img = Image.open(ASSETS_PATH / 'weather_icon.resized.jpg').convert('RGB')
+# # img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
+img_w, img_h = img.size
+img_arr = np.array(img)
+img_2d = [[0] * img_h for _ in range(img_w)]
+for i in range(img_w):
+    for j in range(img_h):
+        color = tuple(img_arr[i, j])
+        img_2d[i][j] = get_closest_color(color, pallete_rgb)
+
+print_color_grid(img_2d)
+
+# commands = []
+
+# for i, row in enumerate(img_2d):
+#     curr_color, start_idx = row[0], 0
+#     # add on -1 at the end to grab all sequences
+#     for idx, color in enumerate(row + [-1]):
+#         if color != curr_color:
+#             # color, start_pos, end_pos
+#             if curr_color != 0:
+#                 commands.append((curr_color, (i, start_idx), (i, idx)))
+#             curr_color, start_idx = color, idx  # update colors and start idx
+
+# print_color_grid()
+# alt_tab()
+# sleep(2)
+# brush_size(1)
+# draw_commands(commands, scale=3)
