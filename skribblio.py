@@ -84,7 +84,7 @@ def print_color_grid():
 
 def draw_commands(commands, scale):
     """ draw commands of the given format:
-    color, start_pos, end_pos
+        color, start_pos, end_pos
     """
     for command in commands:
         color, start_pos, end_pos = command
@@ -138,6 +138,8 @@ color_rows, color_cols = 2, 11
 
 
 def get_hex_array():
+    pallete_rgb = []  # store rgb values of colors
+    pallete_coords = []  # store coordinates of where to click on screen
     palette_img = Image.open(ASSETS_PATH / 'color_palette.png').convert('RGB')
     curr_row = 0
     for color_idx in range(22):  # 22 colors total
@@ -146,30 +148,15 @@ def get_hex_array():
         curr_col = color_idx % 11
         x = int(curr_col * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
         y = int(curr_row * SINGLE_COLOR_SIZE + SINGLE_COLOR_SIZE / 2)
+        pallete_coords.append((x, y))
         rgb = palette_img.getpixel((x, y))
-        print('#', color_idx, '#%02x%02x%02x' % rgb)
+        pallete_rgb.append(rgb)
+    return pallete_rgb, pallete_coords
 
 
-get_hex_array()
-# 0 #ffffff
-# 1 #c0c0c0
-# 2 #fb1d26
-# 3 #ff712c
-# 4 #ffe440
-# 5 #00cb31
-# 6 #00b0fb
-# 7 #1e1ecc
-# 8 #a900b4
-# 9 #d97ba7
-# 10 #a55336
-# 11 #000000
-# 12 #4d4d4d
-# 13 #791416
-# 14 #ca3c1e
-# 15 #efa131
-# 16 #00561e
-# 17 #005699
-# 18 #120e62
-# 19 #590066
-# 20 #ac5673
-# 21 #67341a
+def get_closest_color(color):
+    """ Given an RGB tuple, return the index in the len 22 array of the 
+        closest color """
+
+
+pallete_rgb, pallete_coords = get_hex_array()
