@@ -160,7 +160,7 @@ def draw_commands(commands):
     """ draw commands of the given format:
         color, start_pos, end_pos
     """
-    random.shuffle(commands)
+    # random.shuffle(commands)
     for command in commands:
         color, start_pos, end_pos = command
         if color == 0:  # skip white
@@ -178,8 +178,8 @@ def draw_commands(commands):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-# img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
-img = Image.open(ASSETS_PATH / 'rubixscube.resized.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
+# img = Image.open(ASSETS_PATH / 'rubixscube.resized.png').convert('RGBA')
 # we paste the image on a white background to ensure transparency is white and not black
 white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
 white_bg.paste(img, (0, 0), img)
@@ -192,22 +192,47 @@ for i in range(img_h):
         color = tuple(img_arr[i, j])
         img_2d[i][j] = get_closest_color(color, pallete_rgb)
 
-commands = []
 
-for i, row in enumerate(img_2d):
-    curr_color, start_idx = row[0], 0
-    # add on -1 at the end to grab all sequences
-    for idx, color in enumerate(row + [-1]):
-        if color != curr_color:
-            # color, start_pos, end_pos
-            if curr_color != 0:
-                commands.append((curr_color, (i, start_idx), (i, idx)))
-            curr_color, start_idx = color, idx  # update colors and start idx
+def create_commands(img_2d):
+    """ Given 2D array with colors, create commands """
+    commands_horiz = []
+    commands_vert = []
+
+    # loop through rows
+    for i, row in enumerate(img_2d):
+        curr_color, start_idx = row[0], 0
+        # add on -1 at the end to grab all sequences
+        for idx, color in enumerate(row + [-1]):
+            if color != curr_color:
+                # color, start_pos, end_pos
+                if curr_color != 0:
+                    commands_horiz.append(
+                        (curr_color, (i, start_idx), (i, idx)))
+                curr_color, start_idx = color, idx  # update colors and start idx
+
+    # loop through columns
+    for j in range(len(img_2d[0])):
+        col = [img_2d[i][j] for i in range(len(img_2d))]
+        curr_color, start_idx = col[0], 0
+        # add on -1 at the end to grab all sequences
+        for idx, color in enumerate(col + [-1]):
+            if color != curr_color:
+                # color, start_pos, end_pos
+                if curr_color != 0:
+                    commands_vert.append(
+                        (curr_color, (start_idx, j), (idx, j)))
+                curr_color, start_idx = color, idx  # update colors and start idx
+
+    if len(commands_horiz) <= len(commands_vert):
+        return commands_horiz
+    return commands_vert
+
 
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
 brush_size(2)
+commands = create_commands(img_2d)
 start_time = time()
 print(f'Number of commands: {len(commands)}')
 draw_commands(commands)
