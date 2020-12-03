@@ -91,8 +91,8 @@ def rgb_dist(color1, color2):
 #                 # print(x, y)
 
 
-# img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
-img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
+img = Image.open(ASSETS_PATH / 'soccerball.resized.png').convert('RGB')
+# img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
 img_w, img_h = img.size
 img_arr = np.array(img)
 img_2d = [[0] * img_h for _ in range(img_w)]
@@ -106,22 +106,13 @@ for i in range(img_w):
         if rgb_dist(color, BLACK) <= rgb_dist(color, WHITE):
             img_2d[i][j] = 1
 
-# for i in range(img_w):
-#     for j in range(img_h):
-#         print(int(img_2d[i][j]), end=' ')
-#     print()
 
-commands = []
-
-for i, row in enumerate(img_2d):
-    curr_color, start_idx = row[0], 0
-    # add on -1 at the end to grab all sequences
-    for idx, color in enumerate(row + [-1]):
-        if color != curr_color:
-            # color, start_pos, end_pos
-            if curr_color != 0:
-                commands.append((curr_color, (i, start_idx), (i, idx)))
-            curr_color, start_idx = color, idx  # update colors and start idx
+def print_color_grid():
+    """ Print color ids in grid """
+    for i in range(img_w):
+        for j in range(img_h):
+            print(int(img_2d[i][j]), end=' ')
+        print()
 
 
 def draw_commands(commands, scale):
@@ -143,7 +134,20 @@ def arr_coords_to_canvas(i, j, scale):
     return (x, y)
 
 
-alt_tab()
-sleep(2)
-brush_size(1)
-draw_commands(commands, scale=3)
+commands = []
+
+for i, row in enumerate(img_2d):
+    curr_color, start_idx = row[0], 0
+    # add on -1 at the end to grab all sequences
+    for idx, color in enumerate(row + [-1]):
+        if color != curr_color:
+            # color, start_pos, end_pos
+            if curr_color != 0:
+                commands.append((curr_color, (i, start_idx), (i, idx)))
+            curr_color, start_idx = color, idx  # update colors and start idx
+
+
+# alt_tab()
+# sleep(2)
+# brush_size(1)
+# draw_commands(commands, scale=3)
