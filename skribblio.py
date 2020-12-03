@@ -23,7 +23,7 @@ SINGLE_COLOR_SIZE = PALETTE_WIDTH / 11  # size of one color tile
 # other
 ASSETS_PATH = Path('./assets')
 
-pyautogui.PAUSE = 0.0
+pyautogui.PAUSE = 0.1
 
 
 def alt_tab():
@@ -93,6 +93,7 @@ def draw_commands(commands, scale):
         color, start_pos, end_pos = command
         x0, y0 = arr_coords_to_canvas(*start_pos, scale=scale)
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=scale)
+        pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
         pyautogui.dragTo(x1, y1)
 
@@ -135,9 +136,15 @@ def get_closest_color(color, pallete_rgb):
     return closest_idx
 
 
+def pick_color(color, pallete_coords):
+    """ Click and pick color in palette """
+    pyautogui.click(*pallete_coords[color])
+    sleep(0.1)
+
+
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'weather_icon.resized.jpg').convert('RGB')
+img = Image.open(ASSETS_PATH / 'weather_icon.resized2.jpg').convert('RGB')
 # # img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGB')
 img_w, img_h = img.size
 img_arr = np.array(img)
@@ -147,22 +154,20 @@ for i in range(img_w):
         color = tuple(img_arr[i, j])
         img_2d[i][j] = get_closest_color(color, pallete_rgb)
 
-print_color_grid(img_2d)
+commands = []
 
-# commands = []
-
-# for i, row in enumerate(img_2d):
-#     curr_color, start_idx = row[0], 0
-#     # add on -1 at the end to grab all sequences
-#     for idx, color in enumerate(row + [-1]):
-#         if color != curr_color:
-#             # color, start_pos, end_pos
-#             if curr_color != 0:
-#                 commands.append((curr_color, (i, start_idx), (i, idx)))
-#             curr_color, start_idx = color, idx  # update colors and start idx
+for i, row in enumerate(img_2d):
+    curr_color, start_idx = row[0], 0
+    # add on -1 at the end to grab all sequences
+    for idx, color in enumerate(row + [-1]):
+        if color != curr_color:
+            # color, start_pos, end_pos
+            if curr_color != 0:
+                commands.append((curr_color, (i, start_idx), (i, idx)))
+            curr_color, start_idx = color, idx  # update colors and start idx
 
 # print_color_grid()
-# alt_tab()
-# sleep(2)
-# brush_size(1)
-# draw_commands(commands, scale=3)
+alt_tab()
+sleep(2)
+brush_size(2)
+draw_commands(commands, scale=10)
