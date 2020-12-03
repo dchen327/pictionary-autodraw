@@ -62,9 +62,9 @@ def select_brush(size):
 
 def brush_size(size):
     pyautogui.scroll(-10)
-    sleep(0.2)
+    sleep(0.3)
     pyautogui.scroll(size)
-    sleep(0.2)
+    sleep(0.3)
 
 
 def img_resize(img):
@@ -160,6 +160,7 @@ def draw_commands(commands):
     """ draw commands of the given format:
         color, start_pos, end_pos
     """
+    random.shuffle(commands)
     for command in commands:
         color, start_pos, end_pos = command
         if color == 0:  # skip white
@@ -178,7 +179,7 @@ def draw_commands(commands):
 pallete_rgb, pallete_coords = get_hex_array()
 
 # img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
-img = Image.open(ASSETS_PATH / 'soccerball.64.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'rubixscube.resized.png').convert('RGBA')
 # we paste the image on a white background to ensure transparency is white and not black
 white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
 white_bg.paste(img, (0, 0), img)
@@ -206,8 +207,9 @@ for i, row in enumerate(img_2d):
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
-brush_size(3)
+brush_size(2)
 start_time = time()
+print(f'Number of commands: {len(commands)}')
 draw_commands(commands)
 print('{0:.2f}'.format(time() - start_time))
 # print(pallete_coords)
