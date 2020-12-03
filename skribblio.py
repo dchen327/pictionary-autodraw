@@ -55,11 +55,13 @@ def alt_tab():
 
 
 def brush_size(size):
-    sleep(0.3)
-    pyautogui.scroll(-12)
-    sleep(0.5)
-    pyautogui.scroll(size)
-    sleep(0.3)
+    sleep(0.2)
+    for _ in range(5):
+        pyautogui.scroll(-2)  # reset to tiniest
+        sleep(0.1)
+    for _ in range(size):
+        pyautogui.scroll(1)
+        sleep(0.2)
 
 
 def img_resize(img, size):
@@ -240,7 +242,7 @@ for i in range(img_h):
 alt_tab()
 sleep(0.5)
 pyautogui.press('c')
-brush_size(4)
+brush_size(2)
 commands = create_commands(img_2d)
 
 start_time = time()
