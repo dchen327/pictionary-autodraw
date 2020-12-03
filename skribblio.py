@@ -21,6 +21,7 @@ if GAME == 'skribbl':
     PALETTE_TOP_LEFT = (480, 980)
     PALLETE_DIMS = (2, 11)  # 2 rows, 11 columns of colors
     SINGLE_COLOR_SIZE = 29  # size of one color tile
+    RESIZE = (64, 64)  # max image size after resize
     IMG_SCALE = 10
 elif GAME == 'sketchful':
     # drawing canvas params
@@ -32,6 +33,7 @@ elif GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
+    RESIZE = (64, 64)  # max image size after resize
     IMG_SCALE = 12
 
 
@@ -67,9 +69,9 @@ def brush_size(size):
     sleep(0.3)
 
 
-def img_resize(img):
-    """ resize image to fit screen """
-    pass
+def img_resize(img, size):
+    """ Resize image to size, preserve aspect ratio """
+    img.thumbnail(size, Image.ANTIALIAS)
 
 
 def draw_img(img):
@@ -176,23 +178,6 @@ def draw_commands(commands):
             pyautogui.dragTo(x1, y1, duration=0.12)
 
 
-pallete_rgb, pallete_coords = get_hex_array()
-
-img = Image.open(ASSETS_PATH / 'weather_icon.64.png').convert('RGBA')
-# img = Image.open(ASSETS_PATH / 'rubixscube.resized.png').convert('RGBA')
-# we paste the image on a white background to ensure transparency is white and not black
-white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
-white_bg.paste(img, (0, 0), img)
-img = white_bg.convert('RGB')
-img_w, img_h = img.size
-img_arr = np.array(img)
-img_2d = [[0] * img_w for _ in range(img_h)]
-for i in range(img_h):
-    for j in range(img_w):
-        color = tuple(img_arr[i, j])
-        img_2d[i][j] = get_closest_color(color, pallete_rgb)
-
-
 def create_commands(img_2d):
     """ Given 2D array with colors, create commands """
     commands_horiz = []
@@ -228,6 +213,22 @@ def create_commands(img_2d):
     return commands_vert
 
 
+pallete_rgb, pallete_coords = get_hex_array()
+
+img = Image.open(ASSETS_PATH / 'impossible_cube.png').convert('RGBA')
+img_resize(img, RESIZE)
+# we paste the image on a white background to ensure transparency is white and not black
+white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
+white_bg.paste(img, (0, 0), img)
+img = white_bg.convert('RGB')
+img_w, img_h = img.size
+img_arr = np.array(img)
+img_2d = [[0] * img_w for _ in range(img_h)]
+for i in range(img_h):
+    for j in range(img_w):
+        color = tuple(img_arr[i, j])
+        img_2d[i][j] = get_closest_color(color, pallete_rgb)
+
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
@@ -237,5 +238,3 @@ start_time = time()
 print(f'Number of commands: {len(commands)}')
 draw_commands(commands)
 print('{0:.2f}'.format(time() - start_time))
-# print(pallete_coords)
-# pick_color(8, pallete_coords)
