@@ -74,6 +74,14 @@ def img_resize(img, size):
     img.thumbnail(size, Image.ANTIALIAS)
 
 
+def add_white_bg(img):
+    """ Add white background to image to ensure
+        transparency is white and not black """
+    white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
+    white_bg.paste(img, (0, 0), img)
+    return white_bg.convert('RGB')
+
+
 def draw_img(img):
     """ Draw provided image on canvas """
     arr = np.array(img)
@@ -91,7 +99,7 @@ def rgb_dist(color1, color2):
     """ Returns squared euclidean distance between two numpy RGB triples """
     # return np.sum((color1 - color2) ** 2)
     # return sum((color1[i] - color2[i]) ** 2 for i in range(3))
-    return sum(abs(color1[i] - color2[i]) for i in range(3))
+    return sum((color1[i] - color2[i]) ** 2 for i in range(3))
 
 
 def print_color_grid(img_2d):
@@ -162,20 +170,23 @@ def draw_commands(commands):
     """ draw commands of the given format:
         color, start_pos, end_pos
     """
-    random.shuffle(commands)
+    # random.shuffle(commands)
+    commands.sort(key=lambda x: x[-1], reverse=True)  # sort by dist decreasing
     for command in commands:
-        color, start_pos, end_pos = command
+        color, start_pos, end_pos, dist = command
         if color == 0:  # skip white
             continue
         x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
-        pyautogui.moveTo(x0, y0)
-        drag_dist = coord_manhattan_dist(x0, y0, x1, y1)
-        if drag_dist <= 20:
-            pyautogui.dragTo(x1, y1)
+        if dist == 1:
+            pyautogui.click(x0, y0)
         else:
-            pyautogui.dragTo(x1, y1, duration=0.12)
+            pyautogui.moveTo(x0, y0)
+            if dist <= 3:
+                pyautogui.dragTo(x1, y1)
+            else:
+                pyautogui.dragTo(x1, y1, duration=0.12)
 
 
 def create_commands(img_2d):
@@ -189,10 +200,10 @@ def create_commands(img_2d):
         # add on -1 at the end to grab all sequences
         for idx, color in enumerate(row + [-1]):
             if color != curr_color:
-                # color, start_pos, end_pos
+                # color, start_pos, end_pos, dist
                 if curr_color != 0:
                     commands_horiz.append(
-                        (curr_color, (i, start_idx), (i, idx)))
+                        (curr_color, (i, start_idx), (i, idx), (idx - start_idx)))
                 curr_color, start_idx = color, idx  # update colors and start idx
 
     # loop through columns
@@ -202,23 +213,15 @@ def create_commands(img_2d):
         # add on -1 at the end to grab all sequences
         for idx, color in enumerate(col + [-1]):
             if color != curr_color:
-                # color, start_pos, end_pos
+                # color, start_pos, end_pos, dist
                 if curr_color != 0:
                     commands_vert.append(
-                        (curr_color, (start_idx, j), (idx, j)))
+                        (curr_color, (start_idx, j), (idx, j), (idx - start_idx)))
                 curr_color, start_idx = color, idx  # update colors and start idx
 
     if len(commands_horiz) <= len(commands_vert):
         return commands_horiz
     return commands_vert
-
-
-def add_white_bg(img):
-    """ Add white background to image to ensure
-        transparency is white and not black """
-    white_bg = Image.new('RGBA', img.size, 'WHITE')  # create white background
-    white_bg.paste(img, (0, 0), img)
-    return white_bg.convert('RGB')
 
 
 pallete_rgb, pallete_coords = get_hex_array()
@@ -239,6 +242,7 @@ alt_tab()
 sleep(0.5)
 brush_size(2)
 commands = create_commands(img_2d)
+
 start_time = time()
 print(f'Number of commands: {len(commands)}')
 draw_commands(commands)
