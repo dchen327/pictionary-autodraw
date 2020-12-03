@@ -7,7 +7,7 @@ from numpy.lib.function_base import place
 import pyautogui
 import numpy as np
 from PIL import Image
-from time import sleep
+from time import sleep, time
 from pathlib import Path
 
 GAME = 'sketchful'  # sketchful or skribbl
@@ -168,10 +168,10 @@ def draw_commands(commands):
         x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
         pick_color(color, pallete_coords)
         pyautogui.moveTo(x0, y0)
-        # pyautogui.dragTo(x1, y1, duration=0.15)
-        pyautogui.dragTo(x1, y1, duration=0.1)
-        pyautogui.dragTo(x0, y0, duration=0.05)
-        # pyautogui.dragTo(x0, y0, duration=0.12)
+        if coord_manhattan_dist(x0, y0, x1, y1) < 20:
+            pyautogui.dragTo(x1, y1)
+        else:
+            pyautogui.dragTo(x1, y1, duration=0.12)
 
 
 pallete_rgb, pallete_coords = get_hex_array()
@@ -206,6 +206,8 @@ for i, row in enumerate(img_2d):
 alt_tab()
 sleep(0.5)
 brush_size(1)
+start_time = time()
 draw_commands(commands)
+print('{0:.2f}'.format(time() - start_time))
 # print(pallete_coords)
 # pick_color(8, pallete_coords)
