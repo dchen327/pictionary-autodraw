@@ -102,22 +102,6 @@ def print_color_grid(img_2d):
         print()
 
 
-def draw_commands(commands):
-    """ draw commands of the given format:
-        color, start_pos, end_pos
-    """
-    for command in commands:
-        color, start_pos, end_pos = command
-        if color == 0:  # skip white
-            continue
-        x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
-        x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
-        pick_color(color, pallete_coords)
-        pyautogui.moveTo(x0, y0)
-        pyautogui.dragTo(x1, y1, duration=0.15)
-        # pyautogui.dragTo(x0, y0, duration=0.12)
-
-
 def arr_coords_to_canvas(i, j, scale):
     """ Converts (x, y) array position to canvas """
     x = CANVAS_TOP_LEFT[0] + scale * j
@@ -161,10 +145,33 @@ def get_closest_color(color, pallete_rgb):
     return closest_idx
 
 
+def coord_manhattan_dist(x0, y0, x1, y1):
+    """ Return manhattan dist between two points """
+    return abs(x1 - x0) + abs(y1 - y0)
+
+
 def pick_color(color, pallete_coords):
     """ Click and pick color in palette """
     x, y = pallete_coords[color]
     pyautogui.click(x, y)
+
+
+def draw_commands(commands):
+    """ draw commands of the given format:
+        color, start_pos, end_pos
+    """
+    for command in commands:
+        color, start_pos, end_pos = command
+        if color == 0:  # skip white
+            continue
+        x0, y0 = arr_coords_to_canvas(*start_pos, scale=IMG_SCALE)
+        x1, y1 = arr_coords_to_canvas(*end_pos, scale=IMG_SCALE)
+        pick_color(color, pallete_coords)
+        pyautogui.moveTo(x0, y0)
+        # pyautogui.dragTo(x1, y1, duration=0.15)
+        pyautogui.dragTo(x1, y1, duration=0.1)
+        pyautogui.dragTo(x0, y0, duration=0.05)
+        # pyautogui.dragTo(x0, y0, duration=0.12)
 
 
 pallete_rgb, pallete_coords = get_hex_array()
