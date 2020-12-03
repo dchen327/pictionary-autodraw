@@ -54,15 +54,6 @@ def alt_tab():
     pyautogui.keyUp('alt')
 
 
-def select_brush(size):
-    """ Select the brush using the icon screenshot
-    Sizes: small, mid, large, xlarge
-    """
-    brush_path = ASSETS_PATH / f'{size}_brush.png'
-    x, y = pyautogui.locateCenterOnScreen(str(brush_path.absolute()))
-    pyautogui.click(x, y)
-
-
 def brush_size(size):
     sleep(0.3)
     pyautogui.scroll(-12)
@@ -234,7 +225,7 @@ def create_commands(img_2d):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGBA')
+img = Image.open(ASSETS_PATH / 'house.jpg').convert('RGBA')
 img_resize(img, RESIZE)
 img = add_white_bg(img)
 img_w, img_h = img.size
@@ -248,6 +239,7 @@ for i in range(img_h):
 # print_color_grid(img_2d)
 alt_tab()
 sleep(0.5)
+pyautogui.press('c')
 brush_size(4)
 commands = create_commands(img_2d)
 
