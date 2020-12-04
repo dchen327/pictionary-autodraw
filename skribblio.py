@@ -34,8 +34,9 @@ elif GAME == 'sketchful':
     PALETTE_TOP_LEFT = (1372, 403)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
-    RESIZE = (84, 64)  # max image size after resize
-    IMG_SCALE = 12
+    # RESIZE = (80, 60)  # max image size after resize (4x3 ratio)
+    RESIZE = (40, 30)  # max image size after resize
+    IMG_SCALE = CANVAS_WIDTH // RESIZE[0]
 
 
 # other
@@ -227,8 +228,8 @@ def create_commands(img_2d):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'house.jpg').convert('RGBA')
-img_resize(img, RESIZE)
+img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGBA')
+img_resize(img, (RESIZE))
 img = add_white_bg(img)
 img_w, img_h = img.size
 img_arr = np.array(img)
