@@ -31,7 +31,7 @@ elif GAME == 'sketchful':
     CANVAS_BOTTOM_RIGHT = (
         CANVAS_TOP_LEFT[0] + CANVAS_WIDTH, CANVAS_TOP_LEFT[1] + CANVAS_HEIGHT)
     # color palette params
-    PALETTE_TOP_LEFT = (1372, 403)
+    PALETTE_TOP_LEFT = (1375, 405)
     PALLETE_DIMS = (3, 13)
     SINGLE_COLOR_SIZE = 24  # size of one color tile
     # RESIZE = (80, 60)  # max image size after resize (4x3 ratio)
@@ -228,25 +228,49 @@ def create_commands(img_2d):
 
 pallete_rgb, pallete_coords = get_hex_array()
 
-img = Image.open(ASSETS_PATH / 'soccerball.png').convert('RGBA')
-img_resize(img, (RESIZE))
+img = Image.open(ASSETS_PATH / 'rubixscube.png').convert('RGBA')
+orig_img = img.copy()
+img_resize(img, (80, 60))
 img = add_white_bg(img)
 img_w, img_h = img.size
 img_arr = np.array(img)
-img_2d = [[0] * img_w for _ in range(img_h)]
+high_res_img_2d = [[0] * img_w for _ in range(img_h)]
 for i in range(img_h):
     for j in range(img_w):
         color = tuple(img_arr[i, j])
-        img_2d[i][j] = get_closest_color(color, pallete_rgb)
+        high_res_img_2d[i][j] = get_closest_color(color, pallete_rgb)
 
-# print_color_grid(img_2d)
+img = orig_img
+img_resize(img, (40, 30))
+img = add_white_bg(img)
+img_w, img_h = img.size
+img_arr = np.array(img)
+low_res_img2d = [[0] * img_w for _ in range(img_h)]
+for i in range(img_h):
+    for j in range(img_w):
+        color = tuple(img_arr[i, j])
+        low_res_img2d[i][j] = get_closest_color(color, pallete_rgb)
+
+# print_color_grid(low_res_img2d)
 alt_tab()
 sleep(0.5)
 pyautogui.press('c')
-brush_size(2)
-commands = create_commands(img_2d)
+brush_size(4)
+high_res_commands = create_commands(high_res_img_2d)
+low_res_commands = create_commands(low_res_img2d)
+# keep longer low_res lines
+low_res_commands = [c for c in low_res_commands if c[-1] > 1]
+# keep shorter high_res lines
+high_res_commands = [c for c in high_res_commands if c[-1] < 7]
+
+print(len(low_res_commands))
+print(len(high_res_commands))
 
 start_time = time()
-print(f'Number of commands: {len(commands)}')
-draw_commands(commands)
+RESIZE = (40, 30)  # max image size after resize
+IMG_SCALE = 24
+draw_commands(low_res_commands)
+IMG_SCALE = 12
+brush_size(2)
+draw_commands(high_res_commands)
 print('{0:.2f}'.format(time() - start_time))
