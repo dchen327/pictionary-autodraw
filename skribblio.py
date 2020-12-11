@@ -261,7 +261,7 @@ low_res_commands = create_commands(low_res_img2d)
 # keep longer low_res lines
 low_res_commands = [c for c in low_res_commands if c[-1] > 1]
 # keep shorter high_res lines
-high_res_commands = [c for c in high_res_commands if c[-1] < 7]
+high_res_commands = [c for c in high_res_commands if c[-1] < 10]
 
 print(len(low_res_commands))
 print(len(high_res_commands))
